@@ -18,6 +18,9 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'hammer.fill': 'build',
+  'bubble.left.and.text.bubble.right.fill': 'chat',
+  'person.crop.circle.fill': 'person',
 } as IconMapping;
 
 /**
@@ -30,6 +33,7 @@ export function IconSymbol({
   size = 24,
   color,
   style,
+  weight,
 }: {
   name: IconSymbolName;
   size?: number;

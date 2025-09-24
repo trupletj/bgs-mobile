@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile-bgs.mn",
-    "slug": "mobile-bgs.mn",
+    "name": "mobile-bgs",
+    "slug": "bgs-mn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -33,16 +33,26 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "backgroundColor": "#ffffff"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e00e49a9-28e6-4035-a386-30b92028e49f"
+      }
+    },
+    "owner": "trupletj",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e00e49a9-28e6-4035-a386-30b92028e49f"
     }
   }
 }
