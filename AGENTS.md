@@ -1,4 +1,14 @@
 # Repository Guidelines
+# Metadata
+- Agent Spec Version: 1.0.0
+- Maintainer: @tj
+- Last Updated: 2025-10-02
+## Purpose & Scope
+- Purpose: Help develop an employee mobile app using Expo + Supabase stack by scaffolding code, refactoring, maintaining migrations, writing tests, and documentation.
+
+- In-scope: UI scaffolding, Expo Router navigation, Supabase client integration, OTP auth, Storage uploads, Offline cache, Notifications, utilities, lint/test/CI setup.
+
+- Out-of-scope: Handling secrets, payment systems, financial integrations, or running unsafe shell commands
 
 ## Project Structure & Module Organization
 - Core screens live in `app/` using Expo Router file-based routing; nested routes such as `app/(tabs)` map to bottom-tab stacks.
@@ -7,7 +17,20 @@
 - Static assets are stored in `assets/`; generated bundles land in `dist/` and should not be edited manually.
 - `scripts/` hosts maintenance utilities such as `reset-project.js`; consult `app.json` and `expo-env.d.ts` for Expo configuration and types.
 
-## Build, Test, and Development Commands
+## Tech Requirements & Constraints
+- Language: TypeScript (strict mode)
+- UI: NativeWind + gluestack-ui
+- State: Zustand (UI state), TanStack Query (server state)
+- Forms: React Hook Form + Zod
+- Offline: TanStack Query Persist + MMKV/SQLite (retry queue)
+- Supabase: All tables must have RLS enabled; Storage must use signed URLs
+- Navigation: Expo Router (file-based)
+- Testing: Vitest + @testing-library/react-native
+- CI/CD: GitHub Actions + EAS Build/Submit
+Constraints:
+- Never hardcode secrets; always use .env or EAS Secrets.
+
+## Build, Test, and Development Commands    
 - `npm install` syncs dependencies.
 - `npm run start` launches Expo Dev Server; use `npm run android`, `npm run ios`, or `npm run web` for platform-specific entry points.
 - `npm run lint` runs `expo lint` with the shared ESLint config; treat warnings as actionable.
@@ -19,9 +42,31 @@
 - Import shared modules through the `@/` alias (`@/components/...`) rather than deep relative paths.
 - Run the linter before committing; align fixes with `eslint-config-expo`.
 
-## Testing Guidelines
-- A formal test runner is not configured yet; when adding logic, include targeted tests (Jest with React Native Testing Library) or document manual QA steps in the PR.
-- Keep feature flags and Supabase interactions mockable so the future test harness can stub them cleanly.
+## Safety Rules
+- The agent may run npm, npx, or scripts from package.json.
+- Any external shell command must go through PLAN → DIFF → APPROVE workflow.
+- Network calls beyond Supabase must be approved.
+- Never commit .env* files.
+
+## Agent Workflow (Loop)
+
+- PLAN: List all steps in plain text.
+- DIFF: Show file changes before applying.
+- APPLY: Apply changes only after approval.
+- TEST: Run npm run typecheck && npm run lint && npm test.
+- DOCS: If multiple files were touched, update Agent Changelog below.
+
+## Agent Changelog
+### Always log here after significant changes so the agent can re-sync.
+- 2025-10-02: v1.0.0 Initial version. 
+
+ ## Testing & QA
+  - No automated tests yet; add focused Jest + React Native Testing
+  Library coverage for new logic, or document manual QA steps clearly.
+  - Keep Supabase calls mock-friendly (export functions from modules
+  rather than inlining client access inside components).
+  - Record manual scenarios (e.g., OTP happy path, invalid code, logout)
+  when touching auth.
 
 ## Commit & Pull Request Guidelines
 - Adopt Conventional Commit prefixes (`feat:`, `fix:`, `chore:`) followed by a concise imperative summary.
@@ -31,3 +76,8 @@
 ## Environment & Security Notes
 - Supabase credentials are read from `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`; never hardcode secrets or commit `.env` files.
 - Review Expo release notes before bumping `expo` or `react-native`; align updates with OTA rollout plans.
+
+## Do’s and Don’ts
+
+- Do: Use PLAN → DIFF → APPLY, conventional commits, run tests, update docs.
+- Don’t: Commit secrets, disable RLS, deviate from Expo Router, refactor without approval.
