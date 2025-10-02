@@ -42,16 +42,16 @@ const SERVICE_SECTIONS: ServiceSection[] = [
         title: 'Fleet Management',
         description: 'Real-time tracking and assignment for vehicles.',
         iconName: 'local-shipping',
-        iconBackground: '#E0F2FE',
-        iconColor: '#0A7EA4',
+        iconBackground: 'rgba(56, 189, 248, 0.16)',
+        iconColor: '#38BDF8',
       },
       {
         key: 'inventory',
         title: 'Inventory',
         description: 'Monitor stock levels and automatic reordering.',
         iconName: 'inventory',
-        iconBackground: '#FEF3C7',
-        iconColor: '#B45309',
+        iconBackground: 'rgba(251, 191, 36, 0.18)',
+        iconColor: '#FACC15',
       },
     ],
   },
@@ -64,16 +64,16 @@ const SERVICE_SECTIONS: ServiceSection[] = [
         title: 'Support Center',
         description: 'Centralized ticketing and customer support tools.',
         iconName: 'support-agent',
-        iconBackground: '#FCE7F3',
-        iconColor: '#C026D3',
+        iconBackground: 'rgba(244, 114, 182, 0.16)',
+        iconColor: '#F472B6',
       },
       {
         key: 'feedback',
         title: 'Feedback',
         description: 'Collect sentiment and service insights instantly.',
         iconName: 'thumb-up-alt',
-        iconBackground: '#DCFCE7',
-        iconColor: '#15803D',
+        iconBackground: 'rgba(34, 197, 94, 0.18)',
+        iconColor: '#4ADE80',
       },
     ],
   },
@@ -86,16 +86,16 @@ const SERVICE_SECTIONS: ServiceSection[] = [
         title: 'Billing',
         description: 'Automated invoicing and payment reconciliation.',
         iconName: 'receipt-long',
-        iconBackground: '#F3E8FF',
-        iconColor: '#7C3AED',
+        iconBackground: 'rgba(139, 92, 246, 0.18)',
+        iconColor: '#A855F7',
       },
       {
         key: 'analytics',
         title: 'Analytics',
         description: 'Dashboards to forecast growth and revenue.',
         iconName: 'insights',
-        iconBackground: '#FFE4E6',
-        iconColor: '#E11D48',
+        iconBackground: 'rgba(248, 113, 113, 0.18)',
+        iconColor: '#F87171',
       },
     ],
   },
@@ -137,12 +137,12 @@ export default function ServicesScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.searchContainer}>
-          <Search color={Colors.light.icon} size={20} />
+          <Search color={Colors.dark.icon} size={20} />
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder="Search services"
-            placeholderTextColor={Colors.light.icon}
+            placeholderTextColor={Colors.dark.icon}
             style={styles.searchInput}
             autoCapitalize="none"
             clearButtonMode="while-editing"
@@ -151,7 +151,7 @@ export default function ServicesScreen() {
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator color={Colors.light.primary} size="small" />
+            <ActivityIndicator color={Colors.dark.primary} size="small" />
           </View>
         ) : (
           <View style={styles.sectionsContainer}>
@@ -200,7 +200,7 @@ export default function ServicesScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.dark.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -212,17 +212,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: Colors.light.card,
+    backgroundColor: Colors.dark.card,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   loadingContainer: {
     paddingVertical: 48,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   grid: {
     flexDirection: 'row',
@@ -247,12 +247,12 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '45%',
-    backgroundColor: Colors.light.card,
+    backgroundColor: Colors.dark.card,
     borderRadius: 16,
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
   },
   cardIcon: {
     width: 44,
@@ -264,16 +264,16 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   cardDescription: {
     fontSize: 14,
     lineHeight: 20,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   emptyState: {
     textAlign: 'center',
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
     fontSize: 16,
   },
 });

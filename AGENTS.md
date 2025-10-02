@@ -57,6 +57,10 @@ Constraints:
 ## Agent Changelog
 ### Always log here after significant changes so the agent can re-sync.
 - 2025-10-02: v1.0.0 Initial version. 
+- 2025-10-02: Established dark theme defaults across navigation, auth, and home/services UI.
+- 2025-10-02: Refined login flow with NativeWind/GlueStack UI + React Hook Form + Zod validation.
+- 2025-10-02: Upgraded OTP verification screen with GlueStack layout and schema-driven validation.
+- 2025-10-02: Styled profile tab with QR placeholder and demo details using GlueStack primitives.
 
  <!-- ## Testing & QA
   - No automated tests yet; add focused Jest + React Native Testing
@@ -78,4 +82,5 @@ Constraints:
 ## Do’s and Don’ts
 
 - Do: Use PLAN → DIFF → APPLY, conventional commits, run tests, update docs. 
-- Don’t: Commit secrets, disable RLS, deviate from Expo Router, refactor without approval.
+- Don’t: Commit secrets, disable RLS, deviate from Expo Router, refactor without approval. 
+- Don't add bg-colors border-colors etc. just use gluestack components

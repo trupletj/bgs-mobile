@@ -1,6 +1,5 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Link } from 'expo-router';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { ComponentProps, Fragment } from 'react';
 import {
   Pressable,
@@ -70,24 +69,24 @@ const QUICK_ACTIONS: QuickAction[] = [
     key: 'fleet-management',
     title: 'Fleet Management',
     iconName: 'fleet',
-    iconBackground: '#E0F2FE',
-    iconColor: '#0A7EA4',
+    iconBackground: 'rgba(56, 189, 248, 0.16)',
+    iconColor: '#38BDF8',
     highlights: ['5 open routes', '2 drivers idle'],
   },
   {
     key: 'support-center',
     title: 'Support Center',
     iconName: 'customer',
-    iconBackground: '#FCE7F3',
-    iconColor: '#C026D3',
+    iconBackground: 'rgba(244, 114, 182, 0.16)',
+    iconColor: '#F472B6',
     highlights: ['12 tickets today', 'Avg. response 4m'],
   },
   {
     key: 'analytics',
     title: 'Analytics',
     iconName: 'finance',
-    iconBackground: '#F3E8FF',
-    iconColor: '#7C3AED',
+    iconBackground: 'rgba(139, 92, 246, 0.18)',
+    iconColor: '#A855F7',
     highlights: ['Revenue +6%', 'New trend report'],
   },
 ];
@@ -122,7 +121,7 @@ export default function HomeScreen() {
             accessibilityHint="Opens the notifications screen"
             onPress={navigateToNotifications}
             hitSlop={8}>
-            <MaterialIcons name="notifications-none" size={28} color={Colors.light.text} />
+            <MaterialIcons name="notifications-none" size={28} color={Colors.dark.text} />
           </Pressable>
         </View>
 
@@ -153,12 +152,12 @@ export default function HomeScreen() {
                 <View
                   style={[
                     styles.activityIcon,
-                    { backgroundColor: Colors.light.card },
+                    { backgroundColor: Colors.dark.card },
                   ]}>
                   <MaterialIcons
                     name={ALERT_ICONS[activity.icon]}
                     size={22}
-                    color={Colors.light.tint}
+                    color={Colors.dark.tint}
                   />
                 </View>
                 <View style={styles.activityContent}>
@@ -179,7 +178,7 @@ export default function HomeScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Quick actions</Text>
             <Pressable style={styles.addActionButton} accessibilityRole="button">
-              <MaterialIcons name="add" size={20} color={Colors.light.tint} />
+              <MaterialIcons name="add" size={20} color={Colors.dark.tint} />
               <Text style={styles.addActionText}>Add action</Text>
             </Pressable>
           </View>
@@ -222,7 +221,7 @@ export default function HomeScreen() {
               </Link>
             ))}
             <Pressable style={styles.quickActionGhost} accessibilityRole="button">
-              <MaterialIcons name="apps" size={26} color={Colors.light.icon} />
+              <MaterialIcons name="apps" size={26} color={Colors.dark.icon} />
               <Text style={styles.quickGhostText}>Customize actions</Text>
             </Pressable>
           </ScrollView>
@@ -258,7 +257,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.dark.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -274,30 +273,30 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   userCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
     padding: 20,
-    backgroundColor: Colors.light.card,
+    backgroundColor: Colors.dark.card,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
   },
   avatar: {
     width: 56,
     height: 56,
     borderRadius: 16,
-    backgroundColor: '#E0F2FE',
+    backgroundColor: 'rgba(56, 189, 248, 0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarInitials: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.light.tint,
+    color: Colors.dark.tint,
   },
   userDetails: {
     flex: 1,
@@ -306,11 +305,11 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   userRole: {
     fontSize: 14,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   statusBadge: {
     flexDirection: 'row',
@@ -319,18 +318,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: 'rgba(34, 197, 94, 0.18)',
   },
   statusDot: {
     width: 8,
     height: 8,
     borderRadius: 999,
-    backgroundColor: '#15803D',
+    backgroundColor: '#22C55E',
   },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#15803D',
+    color: '#4ADE80',
     textTransform: 'uppercase',
   },
   section: {
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   sectionAction: {
     paddingHorizontal: 8,
@@ -352,7 +351,7 @@ const styles = StyleSheet.create({
   },
   sectionActionText: {
     fontSize: 14,
-    color: Colors.light.tint,
+    color: Colors.dark.tint,
   },
   activityList: {
     gap: 12,
@@ -361,12 +360,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: Colors.light.card,
+    backgroundColor: Colors.dark.card,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
   },
   activityIcon: {
     width: 40,
@@ -382,22 +381,22 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   activityDescription: {
     fontSize: 14,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   activityBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: 'rgba(251, 191, 36, 0.18)',
   },
   activityBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#B45309',
+    color: '#FACC15',
     textTransform: 'uppercase',
   },
   addActionButton: {
@@ -407,12 +406,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: '#E0F2FE',
+    backgroundColor: 'rgba(56, 189, 248, 0.16)',
   },
   addActionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.light.tint,
+    color: Colors.dark.tint,
   },
   quickActionsRow: {
     gap: 16,
@@ -420,12 +419,12 @@ const styles = StyleSheet.create({
   },
   quickActionCard: {
     width: 240,
-    backgroundColor: Colors.light.card,
+    backgroundColor: Colors.dark.card,
     borderRadius: 20,
     padding: 20,
     gap: 14,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
   },
   quickActionIcon: {
     width: 48,
@@ -437,13 +436,13 @@ const styles = StyleSheet.create({
   quickActionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.dark.text,
   },
   quickHighlights: {
     gap: 8,
   },
   quickHighlightPill: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(148, 163, 184, 0.18)',
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -451,28 +450,29 @@ const styles = StyleSheet.create({
   },
   quickHighlightText: {
     fontSize: 13,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   quickActionGhost: {
     width: 160,
     borderRadius: 20,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     paddingVertical: 20,
+    backgroundColor: 'rgba(148, 163, 184, 0.08)',
   },
   quickGhostText: {
     fontSize: 14,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   newsList: {
-    backgroundColor: Colors.light.card,
+    backgroundColor: Colors.dark.card,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderColor: Colors.dark.border,
   },
   newsItem: {
     paddingHorizontal: 20,
@@ -487,22 +487,22 @@ const styles = StyleSheet.create({
   newsTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.dark.text,
     flex: 1,
     paddingRight: 12,
   },
   newsTime: {
     fontSize: 12,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
   },
   newsDetail: {
     fontSize: 14,
-    color: Colors.light.icon,
+    color: Colors.dark.icon,
     lineHeight: 20,
   },
   newsDivider: {
     height: 1,
-    backgroundColor: Colors.light.border,
+    backgroundColor: Colors.dark.border,
     marginHorizontal: 20,
   },
 });

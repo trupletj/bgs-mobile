@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Colors } from '@/constants/theme';
+
 const sampleNotifications = [
   {
     id: '1',
@@ -30,7 +32,7 @@ export default function NotificationsScreen() {
           </View>
         ))}
       </View>
-      <Text style={styles.footer}>You\'re all caught up for now.</Text>
+      <Text style={styles.footer}>You&apos;re all caught up for now.</Text>
     </SafeAreaView>
   );
 }
@@ -39,7 +41,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: Colors.dark.background,
   },
   list: {
     gap: 16,
@@ -47,12 +49,9 @@ const styles = StyleSheet.create({
   card: {
     padding: 16,
     borderRadius: 12,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    backgroundColor: Colors.dark.card,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -64,20 +63,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
     paddingRight: 12,
+    color: Colors.dark.text,
   },
   cardTimestamp: {
     fontSize: 12,
-    color: '#8c8c8c',
+    color: Colors.dark.icon,
   },
   cardMessage: {
     fontSize: 14,
-    color: '#444',
+    color: Colors.dark.icon,
     lineHeight: 20,
   },
   footer: {
     marginTop: 24,
     fontSize: 14,
-    color: '#666',
+    color: Colors.dark.icon,
     textAlign: 'center',
   },
 });

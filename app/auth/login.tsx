@@ -1,179 +1,194 @@
+import { Box } from '@/components/ui/box';
+import {
+  Button,
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+} from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
+import { Input, InputField } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
 import { Colors } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { SendIcon } from 'lucide-react-native';
+import React, { useMemo } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import {
-  ActivityIndicator,
   Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  phone: z
+    .string({error: 'Phone number is required' })
+    .min(8, 'Утасны дугаар 8 оронтой байх ёстой')
+    .max(8, 'Phone number must be at most 15 characters'),
+  registerNumber: z
+    .string()  
+    .nonempty('Register number is required')  
+    .min(3, 'Register number must be at least 3 characters'),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
 export default function LoginScreen() {
-  const [phone, setPhone] = useState('');
-  const [registerNumber, setRegisterNumber] = useState('');
-  const [loading, setLoading] = useState(false);
-  const colors = Colors.light;
+  const colors = Colors.dark;
+  const placeholderColor = useMemo(() => `${colors.icon}99`, [colors.icon]);
 
-  const handleSendOTP = async () => {
-    if (!phone.trim()) {
-      Alert.alert('Error', 'Please enter your phone number');
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      phone: '',
+      registerNumber: '',
+    },
+  });
 
-    if (!registerNumber.trim()) {
-      Alert.alert('Error', 'Please enter your register number');
-      return;
-    }
-
-    setLoading(true);
-
+  const handleSendOTP = async (values: LoginFormValues) => {
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        phone: phone.trim(),
+        phone: values.phone.trim(),
         options: {
           data: {
-            register_number: registerNumber.trim(),
+            register_number: values.registerNumber.trim(),
           },
         },
       });
 
       if (error) {
-        Alert.alert('Error', error.message);
-      } else {
-        router.push({
-          pathname: '/auth/verify',
-          params: { phone: phone.trim() },
-        });
+        if (error.message.toLowerCase().includes('phone')) {
+          setError('phone', { message: error.message });
+        } else if (error.message.toLowerCase().includes('register')) {
+          setError('registerNumber', { message: error.message });
+        } else {
+          Alert.alert('Error', error.message);
+        }
+        return;
       }
-    } catch (error) {
+
+      router.push({
+        pathname: '/auth/verify',
+        params: { phone: values.phone.trim() },
+      });
+    } catch {
       Alert.alert('Error', 'Failed to send OTP');
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
-        <Text className='font-bold text-4xl'>Sign In</Text>
-         <Heading>I am a Heading</Heading>
-        <Text className='font-bold text-2xl'>
-          Enter your phone number and register number to receive an OTP
-        </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
+      <Box className="flex-1  px-6 py-12">
+        <Box className="flex-1 items-center justify-center">
+          <Box className="w-full max-w-md gap-10">
+            <Box className="gap-3">
+              <Heading size="3xl" className="text-center text-typography-900">
+                Тавтай морил!
+              </Heading>
+              <Text className="text-center text-base leading-6 text-typography-600">
+                Утасны дугаар болон регистрийн дугаараа оруулна уу.
+              </Text>
+            </Box>
 
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>Phone Number</Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-                color: colors.text,
-              },
-            ]}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="+1234567890"
-            placeholderTextColor={colors.text + '60'}
-            keyboardType="phone-pad"
-            autoCapitalize="none"
-            autoComplete="tel"
-          />
-        </View>
+            <Box className="gap-6">
+              <Box className="gap-2">
+                <Text className="text-xl uppercase tracking-wide text-typography-500">
+                  Утасны дугаар
+                </Text>
+                <Controller
+                  control={control}
+                  name="phone"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      size="xl"
+                      isDisabled={isSubmitting}
+                      isInvalid={Boolean(errors.phone)}
+                    >
+                      <InputField
+                        keyboardType="phone-pad"
+                        autoComplete="tel"
+                        returnKeyType="next"
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        placeholder="Утасны дугаар..."
+                        placeholderTextColor={placeholderColor}
+                      />
+                    </Input>
+                  )}
+                />
+                {errors.phone ? (
+                  <Text className="text-xs text-error-500">{errors.phone.message}</Text>
+                ) : null}
+              </Box>
 
-        <View style={styles.inputContainer}>
-          <Text style={[styles.label, { color: colors.text }]}>Register Number</Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-                color: colors.text,
-              },
-            ]}
-            value={registerNumber}
-            onChangeText={setRegisterNumber}
-            placeholder="Enter your register number"
-            placeholderTextColor={colors.text + '60'}
-            autoCapitalize="none"
-          />
-        </View>
+              <Box className="gap-2">
+                <Text className="text-xl uppercase tracking-wide text-typography-500">
+                  Регистрийн дугаар
+                </Text>
+                <Controller
+                  control={control}
+                  name="registerNumber"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      size="xl"
+                      isDisabled={isSubmitting}
+                      isInvalid={Boolean(errors.registerNumber)}
+                    >
+                      <InputField
+                        autoCapitalize="characters"
+                        returnKeyType="done"
+                        value={value}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        placeholder="Жш нь: УА90001122"
+                        placeholderTextColor={placeholderColor}
+                        onSubmitEditing={handleSubmit(handleSendOTP)}
+                      />
+                    </Input>
+                  )}
+                />
+                {errors.registerNumber ? (
+                  <Text className="text-xs text-error-500">
+                    {errors.registerNumber.message}
+                  </Text>
+                ) : null}
+              </Box>
+            </Box>
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            { backgroundColor: colors.primary },
-            loading && styles.buttonDisabled,
-          ]}
-          onPress={handleSendOTP}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Send OTP</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+            <Box className="gap-3">
+              <Button
+                onPress={handleSubmit(handleSendOTP)}
+                disabled={isSubmitting}
+                variant="solid"
+                size="xl"
+                action="primary"
+              >
+                {isSubmitting ? (
+                  <ButtonSpinner />
+                ) : (
+                  <ButtonIcon as={SendIcon} />
+                )}
+                <ButtonText>Илгээх</ButtonText>
+              </Button>
+
+              <Text className="text-center text-xs text-typography-600">
+                We&apos;ll never share your information. You&apos;ll get a secure one-time passcode to continue.
+              </Text>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  content: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 32,
-    opacity: 0.7,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 16,
-  },
-  button: {
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

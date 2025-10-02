@@ -1,18 +1,22 @@
 /**
- * Central place to read light theme colors for components.
+ * Central place to read theme-aware colors for components.
  */
 
 import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+
+type ColorName = keyof (typeof Colors)['light'];
 
 export function useThemeColor(
-  props: { light?: string },
-  colorName: keyof typeof Colors.light
+  props: { light?: string; dark?: string },
+  colorName: ColorName
 ) {
-  const colorFromProps = props.light;
+  const theme = useColorScheme();
+  const colorFromProps = props[theme];
 
   if (colorFromProps) {
     return colorFromProps;
   }
 
-  return Colors.light[colorName];
+  return Colors[theme][colorName];
 }

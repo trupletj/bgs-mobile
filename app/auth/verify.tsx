@@ -1,92 +1,169 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { Box } from '@/components/ui/box';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+  Button,
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+} from '@/components/ui/button';
+import { Heading } from '@/components/ui/heading';
+import { Input, InputField } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
-import { Colors } from '@/constants/theme';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router, useLocalSearchParams } from 'expo-router';
+import { RefreshCwIcon } from 'lucide-react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  NativeSyntheticEvent,
+  Platform,
+  TextInputKeyPressEventData,
+} from 'react-native';
+import { z } from 'zod';
+
+const OTP_LENGTH = 6;
+
+type CodeFieldPath = `code.${number}`;
+
+const verifySchema = z.object({
+  code: z
+    .array(z.string().regex(/^$|^\d$/, 'Зөвхөн цифр оруулна уу'))
+    .length(OTP_LENGTH)
+    .refine(
+      (values) => values.every((digit) => digit.trim().length === 1),
+      '6 оронтой баталгаажуулах кодыг оруулна уу.'
+    ),
+});
+
+type VerifyFormValues = z.infer<typeof verifySchema>;
+
+type InputRef = React.ComponentRef<typeof InputField> | null;
 
 export default function VerifyScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [loading, setLoading] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(60);
-  const colors = Colors.light;
-  const inputs = useRef<(TextInput | null)[]>([]);
+  const [resendLoading, setResendLoading] = useState(false);
+  const inputRefs = useRef<InputRef[]>([]);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    setValue,
+    reset,
+    watch,
+  } = useForm<VerifyFormValues>({
+    resolver: zodResolver(verifySchema),
+    defaultValues: {
+      code: Array(OTP_LENGTH).fill(''),
+    },
+  });
+
+  const codeValues = watch('code');
+
+  const filledDigits = useMemo(() => codeValues.filter((digit) => digit !== '').length, [
+    codeValues,
+  ]);
 
   useEffect(() => {
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      const timer = setTimeout(() => setCountdown((value) => value - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [countdown]);
 
-  const handleOtpChange = (value: string, index: number) => {
-    if (value.length <= 1) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-
-      // Auto-focus next input
-      if (value && index < 5) {
-        inputs.current[index + 1]?.focus();
-      }
-
-      // Auto-verify when all fields are filled
-      if (index === 5 && value && newOtp.every(digit => digit !== '')) {
-        handleVerifyOTP(newOtp.join(''));
-      }
+  useEffect(() => {
+    if (filledDigits === OTP_LENGTH && !isSubmitting) {
+      void handleSubmit(onVerify)();
     }
-  };
+  }, [filledDigits, handleSubmit, isSubmitting, onVerify]);
 
-  const handleKeyPress = (e: any, index: number) => {
-    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
-      inputs.current[index - 1]?.focus();
-    }
-  };
+  const handleDigitChange = (
+    rawValue: string,
+    index: number,
+    onChange: (value: string) => void
+  ) => {
+    const sanitized = rawValue.replace(/[^0-9]/g, '');
 
-  const handleVerifyOTP = async (otpCode?: string) => {
-    const code = otpCode || otp.join('');
-
-    if (code.length !== 6) {
-      Alert.alert('Error', 'Please enter the complete 6-digit OTP');
+    if (!sanitized) {
+      onChange('');
+      setValue(`code.${index}` as const, '', {
+        shouldValidate: false,
+        shouldDirty: true,
+      });
       return;
     }
 
-    setLoading(true);
+    const characters = sanitized.split('').slice(0, OTP_LENGTH - index);
+    onChange(characters[0]);
+    setValue(`code.${index}` as CodeFieldPath, characters[0], {
+      shouldValidate: false,
+      shouldDirty: true,
+    });
+
+    let nextIndex = index;
+
+    characters.slice(1).forEach((char, offset) => {
+      const targetIndex = index + offset + 1;
+      if (targetIndex < OTP_LENGTH) {
+        setValue(`code.${targetIndex}` as CodeFieldPath, char, {
+          shouldValidate: false,
+          shouldDirty: true,
+        });
+        nextIndex = targetIndex;
+      }
+    });
+
+    if (index < OTP_LENGTH - 1) {
+      const focusIndex = Math.min(nextIndex + 1, OTP_LENGTH - 1);
+      inputRefs.current[focusIndex]?.focus();
+    }
+  };
+
+  const handleDigitKeyPress = (
+    event: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    index: number
+  ) => {
+    if (event.nativeEvent.key === 'Backspace' && !codeValues[index] && index > 0) {
+      const previousIndex = index - 1;
+      setValue(`code.${previousIndex}` as CodeFieldPath, '', {
+        shouldValidate: false,
+        shouldDirty: true,
+      });
+      inputRefs.current[previousIndex]?.focus();
+    }
+  };
+
+  const onVerify = useCallback(async ({ code }: VerifyFormValues) => {
+    const token = code.join('');
 
     try {
       const { error } = await supabase.auth.verifyOtp({
         phone: phone!,
-        token: code,
+        token,
         type: 'sms',
       });
 
       if (error) {
-        Alert.alert('Error', error.message);
-        // Clear OTP on error
-        setOtp(['', '', '', '', '', '']);
-        inputs.current[0]?.focus();
-      } else {
-        // Navigate to main app
-        router.replace('/(tabs)');
+        setError('code', { message: error.message }, { shouldFocus: false });
+        reset({ code: Array(OTP_LENGTH).fill('') });
+        inputRefs.current[0]?.focus();
+        return;
       }
-    } catch (error) {
+
+      router.replace('/(tabs)');
+    } catch {
       Alert.alert('Error', 'Failed to verify OTP');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [phone, reset, setError]);
 
   const handleResendOTP = async () => {
-    if (countdown > 0) return;
+    if (countdown > 0 || resendLoading) {
+      return;
+    }
 
     setResendLoading(true);
 
@@ -97,175 +174,117 @@ export default function VerifyScreen() {
 
       if (error) {
         Alert.alert('Error', error.message);
-      } else {
-        setCountdown(60);
-        Alert.alert('Success', 'OTP sent successfully');
+        return;
       }
-    } catch (error) {
+
+      setCountdown(60);
+      reset({ code: Array(OTP_LENGTH).fill('') });
+      inputRefs.current[0]?.focus();
+      Alert.alert('Success', 'OTP sent successfully');
+    } catch {
       Alert.alert('Error', 'Failed to resend OTP');
     } finally {
       setResendLoading(false);
     }
   };
 
+  const countdownLabel = countdown > 0 ? `Дахин илгээх (${countdown}s)` : 'OTP-г дахин илгээх';
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Verify OTP</Text>
-        <Text style={[styles.subtitle, { color: colors.text }]}>
-          Enter the 6-digit code sent to {phone}
-        </Text>
-
-        <View style={styles.otpContainer}>
-          {otp.map((digit, index) => (
-            <TextInput
-              key={index}
-              ref={(ref) => (inputs.current[index] = ref)}
-              style={[
-                styles.otpInput,
-                {
-                  borderColor: digit ? colors.primary : colors.border,
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                },
-              ]}
-              value={digit}
-              onChangeText={(value) => handleOtpChange(value, index)}
-              onKeyPress={(e) => handleKeyPress(e, index)}
-              keyboardType="numeric"
-              maxLength={1}
-              textAlign="center"
-              selectTextOnFocus
-            />
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.button,
-            { backgroundColor: colors.primary },
-            loading && styles.buttonDisabled,
-          ]}
-          onPress={() => handleVerifyOTP()}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="white" />
-          ) : (
-            <Text style={styles.buttonText}>Verify OTP</Text>
-          )}
-        </TouchableOpacity>
-
-        <View style={styles.resendContainer}>
-          <Text style={[styles.resendText, { color: colors.text }]}>
-            Didn't receive the code?
-          </Text>
-          <TouchableOpacity
-            onPress={handleResendOTP}
-            disabled={countdown > 0 || resendLoading}
-            style={styles.resendButton}
-          >
-            {resendLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
-              <Text
-                style={[
-                  styles.resendButtonText,
-                  {
-                    color: countdown > 0 ? colors.text + '60' : colors.primary,
-                  },
-                ]}
-              >
-                {countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP'}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
+      <Box className="flex-1  px-6 py-12">
+        <Box className="flex-1 items-center justify-center">
+          <Box className="w-full max-w-md gap-10">
+            <Box className="gap-3">
+              <Heading size="3xl" className="text-center text-typography-900">
+                Баталгаажуулалт
+              </Heading>
+              <Text className="text-center text-base leading-6 text-typography-600">
+                {phone ? `${phone} дугаар руу илгээсэн 6 оронтой кодыг оруулна уу.` :
+                'Таны утсанд очсон 6 оронтой кодыг оруулна уу.'}
               </Text>
-            )}
-          </TouchableOpacity>
-        </View>
+            </Box>
 
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={[styles.backButtonText, { color: colors.text }]}>
-            Change Phone Number
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            <Box className="gap-4">
+              <Box className="flex-row justify-between gap-3">
+                {Array.from({ length: OTP_LENGTH }).map((_, index) => (
+                  <Controller
+                    key={index}
+                    control={control}
+                    name={`code.${index}` as const}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <Input
+                        size="sm"
+                        isDisabled={isSubmitting}
+                        isInvalid={Boolean(errors.code)}
+                        className="h-14 w-14 rounded-2xl border-2"
+                      >
+                        <InputField
+                          ref={(ref) => (inputRefs.current[index] = ref)}
+                          className="text-center text-2xl font-bold text-typography-900"
+                          value={value}
+                          onBlur={onBlur}
+                          onKeyPress={(event) => handleDigitKeyPress(event, index)}
+                          onChangeText={(text) => handleDigitChange(text, index, onChange)}
+                          keyboardType="number-pad"
+                          returnKeyType={index === OTP_LENGTH - 1 ? 'done' : 'next'}
+                          maxLength={OTP_LENGTH}
+                          selectTextOnFocus
+                        />
+                      </Input>
+                    )}
+                  />
+                ))}
+              </Box>
+              {errors.code ? (
+                <Text className="text-center text-xs text-error-500">
+                  {errors.code.message}
+                </Text>
+              ) : null}
+            </Box>
+
+            <Box className="gap-3">
+              <Button
+                onPress={handleSubmit(onVerify)}
+                disabled={isSubmitting}
+                variant="solid"
+                size="xl"
+                action="primary"
+              >
+                {isSubmitting ? <ButtonSpinner /> : <ButtonIcon as={RefreshCwIcon} />}
+                <ButtonText>Код баталгаажуулах</ButtonText>
+              </Button>
+
+              <Box className="items-center gap-2">
+                <Text className="text-sm text-typography-500">
+                  Код ирээгүй юу?
+                </Text>
+                <Button
+                  onPress={handleResendOTP}
+                  disabled={countdown > 0 || resendLoading}
+                  variant="link"
+                  action="primary"
+                  size="sm"
+                >
+                  {resendLoading ? <ButtonSpinner /> : <ButtonText>{countdownLabel}</ButtonText>}
+                </Button>
+              </Box>
+            </Box>
+
+            <Button
+              onPress={() => router.back()}
+              variant="link"
+              action="primary"
+              size="sm"
+            >
+              <ButtonText>Утасны дугаараа засах</ButtonText>
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  content: {
-    maxWidth: 400,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 32,
-    opacity: 0.7,
-  },
-  otpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 32,
-  },
-  otpInput: {
-    width: 50,
-    height: 60,
-    borderWidth: 2,
-    borderRadius: 8,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  button: {
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  resendContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  resendText: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  resendButton: {
-    padding: 8,
-  },
-  resendButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  backButton: {
-    alignItems: 'center',
-    padding: 16,
-  },
-  backButtonText: {
-    fontSize: 14,
-    opacity: 0.7,
-  },
-});
