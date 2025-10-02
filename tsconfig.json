@@ -4,14 +4,23 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "app/*": ["./app/*"]
+      "@/*": [
+        "./*"
+      ],
+      "app/*": [
+        "./app/*"
+      ],
+      "tailwind.config": [
+        "./tailwind.config.js"
+      ]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/(tabs)/services"  ]
+    "expo-env.d.ts",
+    "app/(tabs)/services",
+    "nativewind-env.d.ts"
+  ]
 }

@@ -19,13 +19,12 @@
 
 ## Tech Requirements & Constraints
 - Language: TypeScript (strict mode)
-- UI: NativeWind + gluestack-ui
+- UI: NativeWind version 4.0 + gluestack-ui + expo/vector-icons
 - State: Zustand (UI state), TanStack Query (server state)
 - Forms: React Hook Form + Zod
 - Offline: TanStack Query Persist + MMKV/SQLite (retry queue)
 - Supabase: All tables must have RLS enabled; Storage must use signed URLs
 - Navigation: Expo Router (file-based)
-- Testing: Vitest + @testing-library/react-native
 - CI/CD: GitHub Actions + EAS Build/Submit
 Constraints:
 - Never hardcode secrets; always use .env or EAS Secrets.
@@ -33,8 +32,7 @@ Constraints:
 ## Build, Test, and Development Commands    
 - `npm install` syncs dependencies.
 - `npm run start` launches Expo Dev Server; use `npm run android`, `npm run ios`, or `npm run web` for platform-specific entry points.
-- `npm run lint` runs `expo lint` with the shared ESLint config; treat warnings as actionable.
-- `npm run reset-project` archives the current source into `app-example/` and rebuilds a blank scaffold.
+- `npm run lint` runs `expo lint` with the shared ESLint config; treat warnings as actionable
 
 ## Coding Style & Naming Conventions
 - TypeScript is mandatory; keep strict typing enabled and prefer explicit return types on hooks and utilities.
@@ -60,13 +58,13 @@ Constraints:
 ### Always log here after significant changes so the agent can re-sync.
 - 2025-10-02: v1.0.0 Initial version. 
 
- ## Testing & QA
+ <!-- ## Testing & QA
   - No automated tests yet; add focused Jest + React Native Testing
   Library coverage for new logic, or document manual QA steps clearly.
   - Keep Supabase calls mock-friendly (export functions from modules
   rather than inlining client access inside components).
   - Record manual scenarios (e.g., OTP happy path, invalid code, logout)
-  when touching auth.
+  when touching auth. -->
 
 ## Commit & Pull Request Guidelines
 - Adopt Conventional Commit prefixes (`feat:`, `fix:`, `chore:`) followed by a concise imperative summary.
@@ -79,5 +77,5 @@ Constraints:
 
 ## Do’s and Don’ts
 
-- Do: Use PLAN → DIFF → APPLY, conventional commits, run tests, update docs.
+- Do: Use PLAN → DIFF → APPLY, conventional commits, run tests, update docs. 
 - Don’t: Commit secrets, disable RLS, deviate from Expo Router, refactor without approval.

@@ -1,12 +1,17 @@
+import { useAuth } from '@/hooks/use-auth';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useAuth } from '@/hooks/use-auth';
-import { useEffect } from 'react';
-import { router } from 'expo-router';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import '@/global.css';
 
+// import { Platform } from 'react-native';
+// if (Platform.OS === 'web') {
+//   require('../global.css');  // _layout.tsx нь app/ дотор тул "../"
+// }
 export const unstable_settings = {
   anchor: '(tabs)',
 };
@@ -23,7 +28,9 @@ export default function RootLayout() {
   }, [isAuthenticated, loading]);
 
   return (
-    <ThemeProvider value={DefaultTheme}>
+    
+    <GluestackUIProvider mode="dark">
+      <ThemeProvider value={DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
@@ -33,5 +40,7 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="dark" />
     </ThemeProvider>
+    </GluestackUIProvider>
+  
   );
 }

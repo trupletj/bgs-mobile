@@ -1,17 +1,17 @@
+import { Heading } from '@/components/ui/heading';
+import { Colors } from '@/constants/theme';
+import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
+  View,
 } from 'react-native';
-import { router } from 'expo-router';
-import { supabase } from '@/lib/supabase';
-import { Colors } from '@/constants/theme';
-
 export default function LoginScreen() {
   const [phone, setPhone] = useState('');
   const [registerNumber, setRegisterNumber] = useState('');
@@ -59,8 +59,9 @@ export default function LoginScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Sign In</Text>
-        <Text style={[styles.subtitle, { color: colors.text }]}>
+        <Text className='font-bold text-4xl'>Sign In</Text>
+         <Heading>I am a Heading</Heading>
+        <Text className='font-bold text-2xl'>
           Enter your phone number and register number to receive an OTP
         </Text>
 
